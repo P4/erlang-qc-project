@@ -14,8 +14,16 @@
 %% API
 -export([]).
 
-prop_delete() ->
+% funkcja nie przechodząca wszystkich testów(przy 1000 się zwykle sypie)
+prop_delete_1() ->
+  ?FORALL({I,L},{int(),list(int())},
+    not lists:member(I, lists:delete(I,L))).
+
+% funkcja przechodząca wszystkie testy(duplikaty usuwane)
+prop_delete_2() ->
   ?FORALL({I,L},{int(),list(int())},
     ?IMPLIES(no_duplicates(L),
       not lists:member(I,lists:delete(I,L)))).
+
 no_duplicates(L) -> lists:usort(L) == lists:sort(L).
+
