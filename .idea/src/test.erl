@@ -15,11 +15,13 @@
 -export([]).
 
 % funkcja nie przechodząca wszystkich testów(przy 1000 się zwykle sypie)
+% wywołujemy w konsoli -> eqc:quickcheck(eqc:numtests(1000,test:prop_delete_1())).
 prop_delete_1() ->
   ?FORALL({I,L},{int(),list(int())},
     not lists:member(I, lists:delete(I,L))).
 
 % funkcja przechodząca wszystkie testy(duplikaty usuwane)
+% wywołujemy w konsoli -> eqc:quickcheck(eqc:numtests(1000,test:prop_delete_2())).
 prop_delete_2() ->
   ?FORALL({I,L},{int(),list(int())},
     ?IMPLIES(no_duplicates(L),
