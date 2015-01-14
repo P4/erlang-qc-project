@@ -14,6 +14,9 @@
 %% API
 -compile(export_all).
 
+% addressBook
+-record(contact, {firstname, lastname, phone_number = [], mail = []}).
+
 %Generatory danych.
 
 %Znaki alfanumeryczne
@@ -23,20 +26,25 @@ digit() -> eqc_gen:choose($0,$9).
 
 % [A-Za-z0-9]+
 alnum() -> eqc_gen:non_empty( eqc_gen:list(
-  eqc_gen:oneof([upper(),lower(),num()])
+  eqc_gen:oneof([uppercase(),lowercase(),digit()])
 )).
 
 % Imię/Nazwisko [A-Z][a-z]*
-name() -> eqc_gen:non_empty([upper() | eqc_gen:list(lower())]).
+name() -> eqc_gen:non_empty(
+  [uppercase() | eqc_gen:list(lowercase())]
+).
 
 % domena, np. example.org
 domain() ->
-  LowerGen = eqc_gen:non_empty(eqc_gen:list(lower())),
+  LowerGen = eqc_gen:non_empty(eqc_gen:list(lowercase())),
   TLDs = eqc_gen:oneof(["com","net","org"]),
   ?LET({Lower,TLD}, {LowerGen,TLDs}, Lower++[$.|TLD]).
 
 % adres e-mail
-email() -> ?LET({User,Domain}, {alnum(),domain()}, User++[$@|Domain]).
+email() -> ?LET(
+  {User,Domain}, {alnum(),domain()},
+  User++[$@|Domain]
+).
 
 % nr telefonu: XXX-XXX-XXX, X=[0-9]
 phone() -> [
@@ -45,13 +53,15 @@ phone() -> [
   digit(),digit(),digit()
 ].
 
-% wpis AddressBook'a (u mnie)
-% {entry, Nazwisko, Imie, [emaile], [telefony], [zatrudnienie]}
-entry() -> ?LET(
-  {Name,Surname,Emails,Phones}, {
+% wpis AddressBook'a
+contact() -> ?LET(
+  {FirstName,LastName,Phones,Emails}, {
     name(),name(),
     eqc_gen:default( [], eqc_gen:list(email()) ),
     eqc_gen:default( [], eqc_gen:list(phone()) )
   },
-  {entry,Surname, Name, Emails, Phones,[]}
+  #contact{
+    firstname = FirstName, lastname = LastName,
+    phone_number = Phones, mail = Emails
+  }
 ).
