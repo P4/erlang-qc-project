@@ -15,17 +15,20 @@
 %-export([]).
 -compile(export_all).
 
+% Record def.
 -record(contact, {firstname, lastname, phone_number = [], mail = []}).
+% record processing
+getname(Contact) -> {Contact#contact.firstname,Contact#contact.lastname}.
+getemails(Contact) -> Contact#contact.mail.
+getphones(Contact) -> Contact#contact.phone_number.
 
 removing_contact() ->
-  ?FORALL(Book, eqc_gen:list(generators:contact()),
-    ?IMPLIES( Book /= [],
-      ?FORALL(Contact, elements(Book),
+  ?FORALL(B1, eqc_gen:non_empty(eqc_gen:list(generators:contact())),
+      ?FORALL(Contact, elements(B1),
         begin
-          {F,L} = {Contact#contact.firstname, Contact#contact.lastname},
-          B2 = addressBook:removeContact(Book,F,L),
-          not lists:member({F,L}, [{C#contact.firstname, C#contact.lastname} || C <- B2 ])
+          {F,L} = getname(Contact),
+          B2 = addressBook:removeContact(B1,F,L),
+          not lists:member({F,L}, [getname(C) || C <- B2 ])
         end
       )
-    )
   ).
