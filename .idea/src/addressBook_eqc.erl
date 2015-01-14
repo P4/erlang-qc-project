@@ -22,13 +22,39 @@ getname(Contact) -> {Contact#contact.firstname,Contact#contact.lastname}.
 getemails(Contact) -> Contact#contact.mail.
 getphones(Contact) -> Contact#contact.phone_number.
 
+%non-empty list
+ne_list(G) -> eqc_gen:non_empty(eqc_gen:list(G)).
+
 removing_contact() ->
-  ?FORALL(B1, eqc_gen:non_empty(eqc_gen:list(generators:contact())),
+  ?FORALL(B1, ne_list(generators:contact()),
       ?FORALL(Contact, elements(B1),
         begin
           {F,L} = getname(Contact),
           B2 = addressBook:removeContact(B1,F,L),
-          not lists:member({F,L}, [getname(C) || C <- B2 ])
+          not lists:member( {F,L}, [getname(C) || C <- B2 ] )
         end
       )
   ).
+
+adding_new_contact() ->
+  ?FORALL( {First,Last,Book},
+    {generators:name(),generators:name(),ne_list(generators:contact())},
+    ?IMPLIES(
+      not lists:member({First,Last}, [getname(C) || C <- Book]),
+      begin
+        B2 = addressBook:addContact(Book,First,Last),
+        lists:member( {First,Last}, [getname(C) || C <- B2 ] )
+      end
+    )
+  ).
+
+adding_existing_contact() ->
+  ?FORALL(B, ne_list(generators:contact()),
+    ?FORALL(C, elements(B),
+      begin
+        {F,L} = getname(C),
+        "Such contact already exists" == addressBook:addContact(B,F,L)
+      end
+    )
+  ).
+
