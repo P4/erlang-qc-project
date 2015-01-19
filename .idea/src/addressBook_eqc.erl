@@ -24,7 +24,6 @@ getphones(Contact) -> Contact#contact.phone_number.
 
 %non-empty list
 
-
 removing_contact() ->
   ?FORALL(B1, generators:addressBook_notempty(),
       ?FORALL(Contact, elements(B1),
@@ -38,7 +37,8 @@ removing_contact() ->
 
 adding_new_contact() ->
   ?FORALL( {First,Last,Book},
-    {generators:name(),generators:name(),generators:addressBook()},
+    {generators:name(),generators:name(),
+      generators:addressBook()},
     ?IMPLIES(
       not lists:member({First,Last}, [getname(C) || C <- Book]),
       begin

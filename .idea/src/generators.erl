@@ -66,7 +66,5 @@ contact() -> ?LET(
   }
 ).
 
-ne_list(G) -> eqc_gen:non_empty(eqc_gen:list(G)).
-
 addressBook() -> list(contact()).
 addressBook_notempty() -> non_empty(addressBook()).
