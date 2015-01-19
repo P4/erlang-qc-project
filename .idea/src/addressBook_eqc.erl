@@ -23,10 +23,10 @@ getemails(Contact) -> Contact#contact.mail.
 getphones(Contact) -> Contact#contact.phone_number.
 
 %non-empty list
-ne_list(G) -> eqc_gen:non_empty(eqc_gen:list(G)).
+
 
 removing_contact() ->
-  ?FORALL(B1, ne_list(generators:contact()),
+  ?FORALL(B1, generators:addressBook_notempty(),
       ?FORALL(Contact, elements(B1),
         begin
           {F,L} = getname(Contact),
@@ -38,7 +38,7 @@ removing_contact() ->
 
 adding_new_contact() ->
   ?FORALL( {First,Last,Book},
-    {generators:name(),generators:name(),ne_list(generators:contact())},
+    {generators:name(),generators:name(),generators:addressBook()},
     ?IMPLIES(
       not lists:member({First,Last}, [getname(C) || C <- Book]),
       begin
@@ -49,7 +49,7 @@ adding_new_contact() ->
   ).
 
 adding_existing_contact() ->
-  ?FORALL(B, ne_list(generators:contact()),
+  ?FORALL(B, generators:addressBook_notempty(),
     ?FORALL(C, elements(B),
       begin
         {F,L} = getname(C),

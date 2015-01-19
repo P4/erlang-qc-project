@@ -20,24 +20,24 @@
 %Generatory danych.
 
 %Znaki alfanumeryczne
-uppercase() -> eqc_gen:choose($A,$Z).
-lowercase() -> eqc_gen:choose($a,$z).
-digit() -> eqc_gen:choose($0,$9).
+uppercase() -> choose($A,$Z).
+lowercase() -> choose($a,$z).
+digit() -> choose($0,$9).
 
 % [A-Za-z0-9]+
-alnum() -> eqc_gen:non_empty( eqc_gen:list(
-  eqc_gen:oneof([uppercase(),lowercase(),digit()])
+alnum() -> non_empty( list(
+  oneof([uppercase(),lowercase(),digit()])
 )).
 
 % Imię/Nazwisko [A-Z][a-z]*
-name() -> eqc_gen:non_empty(
-  [uppercase() | eqc_gen:list(lowercase())]
+name() -> non_empty(
+  [uppercase() | list(lowercase())]
 ).
 
 % domena, np. example.org
 domain() ->
-  LowerGen = eqc_gen:non_empty(eqc_gen:list(lowercase())),
-  TLDs = eqc_gen:oneof(["com","net","org"]),
+  LowerGen = non_empty(list(lowercase())),
+  TLDs = oneof(["com","net","org"]),
   ?LET({Lower,TLD}, {LowerGen,TLDs}, Lower++[$.|TLD]).
 
 % adres e-mail
@@ -57,11 +57,16 @@ phone() -> [
 contact() -> ?LET(
   {FirstName,LastName,Phones,Emails}, {
     name(),name(),
-    eqc_gen:default( [], eqc_gen:list(email()) ),
-    eqc_gen:default( [], eqc_gen:list(phone()) )
+    default( [], list(email()) ),
+    default( [], list(phone()) )
   },
   #contact{
     firstname = FirstName, lastname = LastName,
     phone_number = Phones, mail = Emails
   }
 ).
+
+ne_list(G) -> eqc_gen:non_empty(eqc_gen:list(G)).
+
+addressBook() -> list(contact()).
+addressBook_notempty() -> non_empty(addressBook()).
