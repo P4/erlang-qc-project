@@ -26,13 +26,13 @@ getphones(Contact) -> Contact#contact.phone_number.
 
 removing_contact() ->
   ?FORALL(B1, generators:addressBook_notempty(),
-      ?FORALL(Contact, elements(B1),
-        begin
-          {F,L} = getname(Contact),
-          B2 = addressBook:removeContact(B1,F,L),
-          not lists:member( {F,L}, [getname(C) || C <- B2 ] )
-        end
-      )
+    ?FORALL(Contact, elements(B1),
+      begin
+        {F,L} = getname(Contact),
+        B2 = addressBook:removeContact(B1,F,L),
+        not lists:member( {F,L}, [getname(C) || C <- B2 ] )
+      end
+    )
   ).
 
 adding_new_contact() ->
@@ -58,3 +58,9 @@ adding_existing_contact() ->
     )
   ).
 
+removing_contact_test() ->
+  eqc:quickcheck(removing_contact()).
+adding_new_contact_test() ->
+  eqc:quickcheck(adding_new_contact()).
+adding_existing_contact_test() ->
+  eqc:quickcheck(adding_existing_contact()).
