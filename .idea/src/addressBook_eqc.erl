@@ -58,9 +58,26 @@ adding_existing_contact() ->
     )
   ).
 
+adding_email() ->
+  ?FORALL( {Email,B}, {generators:email(),generators:addressBook_notempty()},
+    ?IMPLIES(
+      not lists:member(Email, lists:flatmap(fun getemails/1,B)),
+      ?FORALL(C, elements(B),
+        begin
+          {F,L} = getname(C),
+          B2 = addressBook:addEmail(B,F,L,Email),
+          [C2] = [CC || CC<-B2, CC#contact.firstname==F, CC#contact.lastname==L],
+          lists:member(Email, C2#contact.mail)
+        end
+      )
+    )
+  ).
+
 removing_contact_test() ->
   eqc:quickcheck(removing_contact()).
 adding_new_contact_test() ->
   eqc:quickcheck(adding_new_contact()).
 adding_existing_contact_test() ->
   eqc:quickcheck(adding_existing_contact()).
+adding_email_test() ->
+  eqc:quickcheck(adding_email()).
